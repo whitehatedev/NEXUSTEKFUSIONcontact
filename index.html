@@ -598,7 +598,6 @@
             position: relative;
         }
 
-        /* Loading shimmer effect */
         .profile-avatar.loading::before {
             content: '';
             position: absolute;
@@ -804,7 +803,7 @@
         }
 
         /* ================================================================
-           SOCIAL LINKS
+           SOCIAL LINKS - FAST LOADING WITH AUTO FORMAT DETECTION
            ================================================================ */
         .social-row {
             display: flex;
@@ -855,10 +854,11 @@
             z-index: 1;
             filter: brightness(0.7);
             transition: filter 0.3s ease;
+            display: none;
         }
 
-        .social-btn:hover img {
-            filter: brightness(1);
+        .social-btn img.loaded {
+            display: block;
         }
 
         .social-btn .emoji-icon {
@@ -870,7 +870,7 @@
         .social-btn.has-image .emoji-icon {
             display: none;
         }
-        .social-btn.has-image img {
+        .social-btn.has-image img.loaded {
             display: block;
         }
         .social-btn:not(.has-image) .emoji-icon {
@@ -987,9 +987,9 @@
         }
 
         /* ================================================================
-           FULL VIEW OVERLAY
+           BUSINESS CARD OVERLAY - View & Download
            ================================================================ */
-        .fullview-overlay {
+        .card-overlay {
             position: fixed;
             top: 0;
             left: 0;
@@ -998,16 +998,17 @@
             background: var(--overlay-bg);
             z-index: 9999;
             display: none;
+            flex-direction: column;
             align-items: center;
             justify-content: center;
-            padding: 40px;
+            padding: 20px;
             opacity: 0;
             transition: opacity 0.5s ease;
             backdrop-filter: blur(20px);
             -webkit-backdrop-filter: blur(20px);
         }
 
-        .fullview-overlay.active {
+        .card-overlay.active {
             display: flex;
             opacity: 1;
             animation: overlayIn 0.5s ease forwards;
@@ -1024,7 +1025,7 @@
             }
         }
 
-        .fullview-overlay .close-btn {
+        .card-overlay .close-btn {
             position: fixed;
             top: 25px;
             right: 25px;
@@ -1045,51 +1046,136 @@
             -webkit-backdrop-filter: blur(10px);
         }
 
-        .fullview-overlay .close-btn:hover {
+        .card-overlay .close-btn:hover {
             background: rgba(255, 255, 255, 0.2);
             transform: scale(1.08) rotate(90deg);
         }
 
-        .fullview-overlay .close-btn:active {
+        .card-overlay .close-btn:active {
             transform: scale(0.9);
         }
 
-        .fullview-overlay img {
-            max-width: 95%;
-            max-height: 90vh;
-            object-fit: contain;
+        .card-overlay .card-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            max-width: 900px;
+            width: 100%;
+            max-height: 85vh;
+            overflow-y: auto;
+            padding: 10px;
+        }
+
+        .card-overlay .card-item {
+            background: rgba(255, 255, 255, 0.03);
             border-radius: 16px;
-            box-shadow: 0 30px 80px rgba(0, 0, 0, 0.6);
-            border: 1px solid rgba(255, 255, 255, 0.05);
-            animation: imageZoom 0.5s ease forwards;
+            border: 1px solid var(--border-light);
+            overflow: hidden;
+            transition: all 0.3s ease;
+            position: relative;
         }
 
-        @keyframes imageZoom {
-            from {
-                opacity: 0;
-                transform: scale(0.9);
-            }
-            to {
-                opacity: 1;
-                transform: scale(1);
-            }
+        .card-overlay .card-item:hover {
+            transform: scale(1.02);
+            border-color: var(--border-hover);
+            box-shadow: var(--shadow-glow);
         }
 
-        .fullview-overlay .image-info {
-            position: fixed;
-            bottom: 30px;
-            left: 50%;
-            transform: translateX(-50%);
-            color: var(--text-muted);
-            font-size: 12px;
-            letter-spacing: 1px;
+        .card-overlay .card-item img {
+            width: 100%;
+            height: auto;
+            display: block;
+            object-fit: contain;
+            max-height: 60vh;
+        }
+
+        .card-overlay .card-item .card-label {
+            padding: 12px;
+            text-align: center;
+            font-size: 11px;
+            letter-spacing: 2px;
             text-transform: uppercase;
-            background: rgba(0, 0, 0, 0.4);
-            padding: 8px 20px;
-            border-radius: 60px;
+            color: var(--text-muted);
+            border-top: 1px solid var(--border-light);
+            font-weight: 600;
+        }
+
+        .card-overlay .card-item .download-btn {
+            position: absolute;
+            bottom: 60px;
+            right: 15px;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: rgba(0, 180, 255, 0.15);
+            border: 1px solid rgba(0, 180, 255, 0.2);
+            color: var(--text-primary);
+            font-size: 18px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
             backdrop-filter: blur(10px);
             -webkit-backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.05);
+            opacity: 0;
+        }
+
+        .card-overlay .card-item:hover .download-btn {
+            opacity: 1;
+        }
+
+        .card-overlay .card-item .download-btn:hover {
+            background: rgba(0, 180, 255, 0.25);
+            transform: scale(1.1);
+            border-color: var(--accent-blue);
+        }
+
+        .card-overlay .download-all-btn {
+            margin-top: 16px;
+            padding: 12px 32px;
+            background: linear-gradient(135deg, var(--gradient-start), var(--gradient-end));
+            border: 1px solid var(--border-light);
+            border-radius: 60px;
+            color: var(--text-secondary);
+            font-size: 14px;
+            font-weight: 600;
+            letter-spacing: 1px;
+            cursor: pointer;
+            transition: all 0.4s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+        }
+
+        .card-overlay .download-all-btn:hover {
+            border-color: var(--border-hover);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-glow);
+        }
+
+        .card-overlay .download-all-btn:active {
+            transform: scale(0.97);
+        }
+
+        /* Mobile responsive */
+        @media (max-width: 600px) {
+            .card-overlay .card-grid {
+                grid-template-columns: 1fr;
+                gap: 15px;
+                max-height: 80vh;
+            }
+            .card-overlay .card-item .download-btn {
+                opacity: 1;
+                bottom: 55px;
+                right: 12px;
+                width: 36px;
+                height: 36px;
+                font-size: 16px;
+            }
         }
 
         /* ================================================================
@@ -1213,20 +1299,15 @@
                 font-size: 20px !important;
                 opacity: 0.08 !important;
             }
-            .fullview-overlay {
-                padding: 20px;
+            .card-overlay {
+                padding: 12px;
             }
-            .fullview-overlay .close-btn {
+            .card-overlay .close-btn {
                 width: 40px;
                 height: 40px;
                 font-size: 22px;
                 top: 15px;
                 right: 15px;
-            }
-            .fullview-overlay .image-info {
-                font-size: 10px;
-                padding: 6px 16px;
-                bottom: 20px;
             }
         }
 
@@ -1298,12 +1379,30 @@
     </button>
 
     <!-- ================================================================
-    FULL VIEW OVERLAY
+    BUSINESS CARD OVERLAY - View & Download
     ================================================================ -->
-    <div class="fullview-overlay" id="fullviewOverlay">
-        <button class="close-btn" id="closeFullview">✕</button>
-        <img src="assets/images/card-bg.jpg" alt="NEXUSTEK FUSION Card Background" id="fullviewImage" />
-        <div class="image-info">✦ NEXUSTEK FUSION Card Design</div>
+    <div class="card-overlay" id="cardOverlay">
+        <button class="close-btn" id="closeCardView">✕</button>
+        
+        <div class="card-grid" id="cardGrid">
+            <!-- Card 1 - Front -->
+            <div class="card-item" id="cardFront">
+                <img src="assets/images/card-front.jpg" alt="Business Card Front" id="cardFrontImg" onerror="this.style.display='none'" />
+                <div class="card-label">✦ Front Side</div>
+                <button class="download-btn" id="downloadFront" title="Download Front">⬇️</button>
+            </div>
+            
+            <!-- Card 2 - Back -->
+            <div class="card-item" id="cardBack">
+                <img src="assets/images/card-back.jpg" alt="Business Card Back" id="cardBackImg" onerror="this.style.display='none'" />
+                <div class="card-label">✦ Back Side</div>
+                <button class="download-btn" id="downloadBack" title="Download Back">⬇️</button>
+            </div>
+        </div>
+        
+        <button class="download-all-btn" id="downloadAllBtn">
+            ⬇️ Download Both Images
+        </button>
     </div>
 
     <!-- ================================================================
@@ -1410,23 +1509,23 @@
                 </div>
             </div>
 
-            <!-- ===== SOCIAL LINKS ===== -->
+            <!-- ===== SOCIAL LINKS - Fast Loading ===== -->
             <div class="social-row" id="socialRow">
                 <!-- LinkedIn -->
                 <a href="https://in.linkedin.com/in/sahil-bhagat-36b5301a1" class="social-btn" id="linkedinBtn" target="_blank" title="LinkedIn" aria-label="LinkedIn">
-                    <img src="assets/icons/linkedin.png" alt="LinkedIn" onerror="this.style.display='none'" />
+                    <img src="assets/icons/linkedin.png" alt="LinkedIn" id="linkedinIcon" />
                     <span class="emoji-icon">🔗</span>
                 </a>
 
                 <!-- Instagram -->
                 <a href="https://www.instagram.com/sahil_bhagat_329/" class="social-btn" id="instagramBtn" target="_blank" title="Instagram" aria-label="Instagram">
-                    <img src="assets/icons/instagram.png" alt="Instagram" onerror="this.style.display='none'" />
+                    <img src="assets/icons/instagram.png" alt="Instagram" id="instagramIcon" />
                     <span class="emoji-icon">📷</span>
                 </a>
 
                 <!-- WhatsApp -->
                 <button class="social-btn" id="whatsappBtn" title="Chat on WhatsApp" aria-label="WhatsApp">
-                    <img src="assets/icons/whatsapp.png" alt="WhatsApp" onerror="this.style.display='none'" />
+                    <img src="assets/icons/whatsapp.png" alt="WhatsApp" id="whatsappIcon" />
                     <span class="emoji-icon">💬</span>
                 </button>
             </div>
@@ -1436,8 +1535,9 @@
                 <span class="icon-btn">📇</span> <span>Save to Contacts</span>
             </button>
 
-            <button class="btn-save secondary" id="fullviewBtn">
-                <span class="icon-btn">🖼️</span> <span>View Full Card Design</span>
+            <!-- Business Card Button -->
+            <button class="btn-save secondary" id="businessCardBtn">
+                <span class="icon-btn">🖼️</span> <span>Business Card</span>
             </button>
 
             <!-- ===== FOOTER ===== -->
@@ -1625,6 +1725,52 @@
         }
 
         // ================================================================
+        //  SOCIAL ICONS - FAST LOADING WITH AUTO FORMAT DETECTION
+        // ================================================================
+        function loadSocialIcon(imgElement, iconName) {
+            const parent = imgElement.parentElement;
+            const formats = ['webp', 'png', 'jpg', 'jpeg', 'svg'];
+            let currentTry = 0;
+            
+            const srcParts = imgElement.src.split('/');
+            const fileName = srcParts[srcParts.length - 1];
+            const baseName = fileName.replace(/\.[^/.]+$/, '');
+            const path = imgElement.src.replace(fileName, '');
+            
+            function tryLoad() {
+                if (currentTry >= formats.length) {
+                    // All formats failed - show emoji fallback
+                    parent.classList.remove('has-image');
+                    return;
+                }
+                
+                const format = formats[currentTry];
+                const testUrl = path + baseName + '.' + format;
+                
+                const testImg = new Image();
+                testImg.onload = function() {
+                    imgElement.src = testUrl;
+                    imgElement.onload = function() {
+                        parent.classList.add('has-image');
+                        imgElement.classList.add('loaded');
+                    };
+                    imgElement.onerror = function() {
+                        currentTry++;
+                        tryLoad();
+                    };
+                    imgElement.src = testUrl;
+                };
+                testImg.onerror = function() {
+                    currentTry++;
+                    tryLoad();
+                };
+                testImg.src = testUrl;
+            }
+            
+            tryLoad();
+        }
+
+        // ================================================================
         //  IMAGE ERROR HANDLER
         // ================================================================
         function handleImageError(img) {
@@ -1691,7 +1837,7 @@ END:VCARD`;
         }
 
         // ================================================================
-        //  SAVE TO CONTACTS - INCLUDES COMPANY NAME
+        //  SAVE TO CONTACTS
         // ================================================================
         function saveToContacts() {
             const vcfContent = generateVcf(MY_DATA);
@@ -1736,18 +1882,55 @@ END:VCARD`;
         }
 
         // ================================================================
-        //  FULL VIEW
+        //  BUSINESS CARD - View & Download Images
         // ================================================================
-        function openFullView() {
-            const overlay = document.getElementById('fullviewOverlay');
+        function openBusinessCard() {
+            const overlay = document.getElementById('cardOverlay');
             overlay.classList.add('active');
             document.body.style.overflow = 'hidden';
         }
 
-        function closeFullView() {
-            const overlay = document.getElementById('fullviewOverlay');
+        function closeBusinessCard() {
+            const overlay = document.getElementById('cardOverlay');
             overlay.classList.remove('active');
             document.body.style.overflow = '';
+        }
+
+        function downloadImage(imgElement, filename) {
+            const link = document.createElement('a');
+            link.href = imgElement.src;
+            link.download = filename;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            showToast(`⬇️ Downloading ${filename}...`);
+        }
+
+        function downloadAllImages() {
+            const frontImg = document.getElementById('cardFrontImg');
+            const backImg = document.getElementById('cardBackImg');
+            
+            // Download front
+            setTimeout(() => {
+                const link1 = document.createElement('a');
+                link1.href = frontImg.src;
+                link1.download = 'nexustekfusion_card_front.jpg';
+                document.body.appendChild(link1);
+                link1.click();
+                document.body.removeChild(link1);
+            }, 100);
+            
+            // Download back after a short delay
+            setTimeout(() => {
+                const link2 = document.createElement('a');
+                link2.href = backImg.src;
+                link2.download = 'nexustekfusion_card_back.jpg';
+                document.body.appendChild(link2);
+                link2.click();
+                document.body.removeChild(link2);
+            }, 500);
+            
+            showToast('⬇️ Downloading both card images...');
         }
 
         // ================================================================
@@ -1792,42 +1975,59 @@ END:VCARD`;
         }
 
         // ================================================================
-        //  HANDLE SOCIAL ICON IMAGES
-        // ================================================================
-        function handleImageErrors() {
-            document.querySelectorAll('.social-btn img').forEach(img => {
-                if (img.complete && img.naturalHeight !== 0) {
-                    img.parentElement.classList.add('has-image');
-                }
-            });
-        }
-
-        // ================================================================
         //  INIT
         // ================================================================
         document.addEventListener('DOMContentLoaded', function() {
             renderUI(MY_DATA);
+            
+            // Load profile image
             loadProfileImage();
+            
+            // Load social icons with auto format detection
+            loadSocialIcon(document.getElementById('linkedinIcon'), 'linkedin');
+            loadSocialIcon(document.getElementById('instagramIcon'), 'instagram');
+            loadSocialIcon(document.getElementById('whatsappIcon'), 'whatsapp');
+            
             loadViewCount();
             trackView();
 
+            // Save to Contacts
             document.getElementById('saveContactBtn').addEventListener('click', saveToContacts);
-            document.getElementById('fullviewBtn').addEventListener('click', openFullView);
-            document.getElementById('closeFullview').addEventListener('click', closeFullView);
-            document.getElementById('fullviewOverlay').addEventListener('click', function(e) {
+
+            // Business Card - View & Download
+            document.getElementById('businessCardBtn').addEventListener('click', openBusinessCard);
+            document.getElementById('closeCardView').addEventListener('click', closeBusinessCard);
+            document.getElementById('cardOverlay').addEventListener('click', function(e) {
                 if (e.target === this) {
-                    closeFullView();
+                    closeBusinessCard();
                 }
             });
+
+            // Download individual cards
+            document.getElementById('downloadFront').addEventListener('click', function(e) {
+                e.stopPropagation();
+                const img = document.getElementById('cardFrontImg');
+                downloadImage(img, 'nexustekfusion_card_front.jpg');
+            });
+
+            document.getElementById('downloadBack').addEventListener('click', function(e) {
+                e.stopPropagation();
+                const img = document.getElementById('cardBackImg');
+                downloadImage(img, 'nexustekfusion_card_back.jpg');
+            });
+
+            // Download both
+            document.getElementById('downloadAllBtn').addEventListener('click', downloadAllImages);
+
+            // WhatsApp
             document.getElementById('whatsappBtn').addEventListener('click', openWhatsAppWithMessage);
 
+            // Escape key
             document.addEventListener('keydown', function(e) {
                 if (e.key === 'Escape') {
-                    closeFullView();
+                    closeBusinessCard();
                 }
             });
-
-            setTimeout(handleImageErrors, 500);
         });
     </script>
 
