@@ -3,13 +3,65 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes" />
-    <title>NEXUSTEKFUSION - Digital Business Card</title>
-
-    <!-- QRCode.js Library -->
-    <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
+    <title>NEXUSTEK FUSION - Virtual Business Card</title>
 
     <style>
-        /* ===== RESET & BASE ===== */
+        /* ================================================================
+           CSS VARIABLES & THEMES
+           ================================================================ */
+        :root {
+            /* Dark Theme (Default) */
+            --bg-primary: #05080d;
+            --bg-card: rgba(12, 18, 28, 0.92);
+            --bg-card-hover: rgba(20, 30, 46, 0.95);
+            --text-primary: #e8edf5;
+            --text-secondary: rgba(255, 255, 255, 0.7);
+            --text-muted: rgba(255, 255, 255, 0.3);
+            --text-dim: rgba(255, 255, 255, 0.06);
+            --border-light: rgba(255, 255, 255, 0.06);
+            --border-hover: rgba(0, 180, 255, 0.25);
+            --glow-color: rgba(0, 120, 255, 0.12);
+            --gradient-start: rgba(0, 119, 255, 0.15);
+            --gradient-end: rgba(0, 180, 255, 0.05);
+            --shadow-card: 0 30px 80px rgba(0, 0, 0, 0.95);
+            --shadow-glow: 0 8px 40px rgba(0, 120, 255, 0.15);
+            --avatar-bg: linear-gradient(135deg, #0a1a2e, #001a3a);
+            --accent-blue: #00b4ff;
+            --accent-blue-dark: #0077ff;
+            --accent-glow: rgba(0, 180, 255, 0.15);
+            --toast-bg: rgba(0, 10, 25, 0.95);
+            --contact-bg: rgba(255, 255, 255, 0.02);
+            --social-bg: rgba(255, 255, 255, 0.02);
+        }
+
+        /* Light Theme */
+        [data-theme="light"] {
+            --bg-primary: #e8edf5;
+            --bg-card: rgba(255, 255, 255, 0.92);
+            --bg-card-hover: rgba(245, 248, 252, 0.95);
+            --text-primary: #0a1628;
+            --text-secondary: rgba(10, 22, 40, 0.7);
+            --text-muted: rgba(10, 22, 40, 0.35);
+            --text-dim: rgba(10, 22, 40, 0.06);
+            --border-light: rgba(10, 22, 40, 0.08);
+            --border-hover: rgba(0, 120, 255, 0.25);
+            --glow-color: rgba(0, 120, 255, 0.08);
+            --gradient-start: rgba(0, 119, 255, 0.08);
+            --gradient-end: rgba(0, 180, 255, 0.02);
+            --shadow-card: 0 30px 80px rgba(0, 0, 0, 0.12);
+            --shadow-glow: 0 8px 40px rgba(0, 120, 255, 0.08);
+            --avatar-bg: linear-gradient(135deg, #d0d8e8, #e8edf5);
+            --accent-blue: #0066cc;
+            --accent-blue-dark: #0055aa;
+            --accent-glow: rgba(0, 120, 255, 0.1);
+            --toast-bg: rgba(255, 255, 255, 0.95);
+            --contact-bg: rgba(0, 0, 0, 0.02);
+            --social-bg: rgba(0, 0, 0, 0.02);
+        }
+
+        /* ================================================================
+           RESET & BASE
+           ================================================================ */
         * {
             margin: 0;
             padding: 0;
@@ -17,146 +69,674 @@
         }
 
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-            background: #0a0e17;
-            background: radial-gradient(circle at 20% 20%, #0f1a2e, #05080d);
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: var(--bg-primary);
             min-height: 100vh;
             display: flex;
             justify-content: center;
             align-items: center;
-            padding: 20px;
-            color: #e8edf5;
-        }
-
-        .card-container {
-            max-width: 420px;
-            width: 100%;
-            background: rgba(18, 30, 50, 0.85);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            border-radius: 40px;
-            padding: 30px 24px 35px;
-            box-shadow: 0 25px 60px rgba(0, 0, 0, 0.8), 0 0 0 1px rgba(0, 180, 255, 0.15);
-            border: 1px solid rgba(0, 180, 255, 0.12);
-            transition: all 0.3s ease;
-        }
-
-        /* ===== HEADER ===== */
-        .brand-header {
-            text-align: center;
-            margin-bottom: 24px;
+            padding: 16px;
+            color: var(--text-primary);
+            transition: background 0.6s ease, color 0.6s ease;
+            overflow-x: hidden;
             position: relative;
         }
 
-        .brand-header .logo-icon {
-            font-size: 42px;
-            font-weight: 800;
-            background: linear-gradient(135deg, #00b4ff, #0077ff);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-            letter-spacing: -1px;
-            display: inline-block;
+        /* ================================================================
+           ANIMATED BACKGROUND - STARS
+           ================================================================ */
+        #stars-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            pointer-events: none;
         }
 
-        .brand-header .sub {
-            font-size: 11px;
-            letter-spacing: 3px;
-            text-transform: uppercase;
-            color: rgba(255, 255, 255, 0.35);
-            margin-top: 2px;
-            font-weight: 400;
+        /* ================================================================
+           FLOATING ELEMENTS
+           ================================================================ */
+        .floating-elements {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            pointer-events: none;
+            overflow: hidden;
         }
 
-        .divider {
-            height: 1px;
-            background: linear-gradient(90deg, transparent, rgba(0, 180, 255, 0.3), transparent);
-            margin: 16px 0 22px;
+        .float-element {
+            position: absolute;
+            font-size: 30px;
+            opacity: 0.15;
+            animation: floatAround 20s ease-in-out infinite;
+            filter: blur(0.5px);
         }
 
-        /* ===== PROFILE ===== */
-        .profile-avatar {
-            width: 96px;
-            height: 96px;
+        .float-element:nth-child(1) {
+            top: 10%;
+            left: 5%;
+            font-size: 45px;
+            animation-duration: 25s;
+            animation-delay: -2s;
+        }
+        .float-element:nth-child(2) {
+            top: 20%;
+            right: 8%;
+            font-size: 35px;
+            animation-duration: 18s;
+            animation-delay: -5s;
+        }
+        .float-element:nth-child(3) {
+            bottom: 25%;
+            left: 3%;
+            font-size: 50px;
+            animation-duration: 30s;
+            animation-delay: -8s;
+        }
+        .float-element:nth-child(4) {
+            bottom: 15%;
+            right: 5%;
+            font-size: 40px;
+            animation-duration: 22s;
+            animation-delay: -3s;
+        }
+        .float-element:nth-child(5) {
+            top: 45%;
+            left: 50%;
+            font-size: 55px;
+            animation-duration: 28s;
+            animation-delay: -10s;
+            transform: translateX(-50%);
+        }
+        .float-element:nth-child(6) {
+            top: 60%;
+            left: 10%;
+            font-size: 28px;
+            animation-duration: 16s;
+            animation-delay: -6s;
+        }
+        .float-element:nth-child(7) {
+            top: 5%;
+            left: 45%;
+            font-size: 32px;
+            animation-duration: 20s;
+            animation-delay: -4s;
+        }
+        .float-element:nth-child(8) {
+            bottom: 40%;
+            right: 2%;
+            font-size: 38px;
+            animation-duration: 26s;
+            animation-delay: -7s;
+        }
+
+        @keyframes floatAround {
+            0% {
+                transform: translate(0, 0) rotate(0deg) scale(1);
+            }
+            25% {
+                transform: translate(30px, -40px) rotate(90deg) scale(1.1);
+            }
+            50% {
+                transform: translate(-20px, 30px) rotate(180deg) scale(0.9);
+            }
+            75% {
+                transform: translate(40px, 20px) rotate(270deg) scale(1.05);
+            }
+            100% {
+                transform: translate(0, 0) rotate(360deg) scale(1);
+            }
+        }
+
+        /* ================================================================
+           CARD CONTAINER
+           ================================================================ */
+        .card-container {
+            max-width: 420px;
+            width: 100%;
+            background: var(--bg-card);
+            backdrop-filter: blur(30px);
+            -webkit-backdrop-filter: blur(30px);
+            border-radius: 32px;
+            padding: 32px 24px 36px;
+            box-shadow: var(--shadow-card), 0 0 0 1px var(--border-light);
+            position: relative;
+            z-index: 1;
+            overflow: hidden;
+            transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+            animation: cardEntrance 0.8s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+            border: 1px solid rgba(0, 180, 255, 0.05);
+        }
+
+        @keyframes cardEntrance {
+            from {
+                opacity: 0;
+                transform: translateY(40px) scale(0.95);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+
+        /* Premium glow effects */
+        .card-container::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -50%;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle at 70% 20%, var(--accent-glow), transparent 60%);
+            pointer-events: none;
+            transition: opacity 0.6s ease;
+        }
+
+        .card-container::after {
+            content: '';
+            position: absolute;
+            bottom: -30%;
+            left: -20%;
+            width: 60%;
+            height: 60%;
+            background: radial-gradient(circle at 30% 80%, var(--accent-glow), transparent 60%);
+            pointer-events: none;
+            transition: opacity 0.6s ease;
+        }
+
+        /* Glow border animation */
+        .card-container .glow-border {
+            position: absolute;
+            inset: -2px;
+            border-radius: 34px;
+            background: conic-gradient(from 0deg, transparent, var(--accent-blue), transparent, var(--accent-blue-dark), transparent);
+            opacity: 0.08;
+            z-index: -1;
+            animation: borderSpin 8s linear infinite;
+            pointer-events: none;
+        }
+
+        @keyframes borderSpin {
+            0% {
+                transform: rotate(0deg);
+            }
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        /* ================================================================
+           THEME TOGGLE
+           ================================================================ */
+        .theme-toggle {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            width: 46px;
+            height: 46px;
             border-radius: 50%;
-            background: linear-gradient(135deg, #00b4ff, #003c8f);
+            background: var(--bg-card);
+            border: 1px solid var(--border-light);
+            color: var(--text-secondary);
+            font-size: 20px;
+            cursor: pointer;
             display: flex;
             align-items: center;
             justify-content: center;
-            margin: 0 auto 14px;
-            font-size: 40px;
-            font-weight: 700;
-            color: white;
-            box-shadow: 0 8px 30px rgba(0, 120, 255, 0.3);
-            border: 2px solid rgba(0, 180, 255, 0.3);
-            user-select: none;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: var(--shadow-card);
+            z-index: 100;
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
         }
 
-        .profile-name {
-            font-size: 26px;
-            font-weight: 700;
+        .theme-toggle:hover {
+            transform: scale(1.08) rotate(20deg);
+            border-color: var(--border-hover);
+            box-shadow: var(--shadow-glow);
+        }
+
+        .theme-toggle:active {
+            transform: scale(0.9);
+        }
+
+        .theme-toggle .icon-sun {
+            display: none;
+        }
+        .theme-toggle .icon-moon {
+            display: block;
+        }
+
+        [data-theme="light"] .theme-toggle .icon-sun {
+            display: block;
+        }
+        [data-theme="light"] .theme-toggle .icon-moon {
+            display: none;
+        }
+
+        /* ================================================================
+           TOP BAR
+           ================================================================ */
+        .top-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 18px;
+            animation: fadeDown 0.6s ease 0.2s both;
+        }
+
+        @keyframes fadeDown {
+            from {
+                opacity: 0;
+                transform: translateY(-16px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .top-bar .logo-small {
+            height: 34px;
+            width: auto;
+            object-fit: contain;
+            opacity: 0.7;
+            transition: all 0.3s ease;
+            filter: drop-shadow(0 0 10px rgba(0, 180, 255, 0.1));
+        }
+
+        .top-bar .logo-small:hover {
+            opacity: 1;
+            filter: drop-shadow(0 0 20px rgba(0, 180, 255, 0.2));
+        }
+
+        .top-bar .status-dot {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 10px;
+            color: var(--text-muted);
+            letter-spacing: 0.8px;
+            font-weight: 500;
+            text-transform: uppercase;
+        }
+
+        .top-bar .status-dot .dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #00c853;
+            animation: pulse-dot 2s ease-in-out infinite;
+            box-shadow: 0 0 15px rgba(0, 200, 83, 0.3);
+        }
+
+        @keyframes pulse-dot {
+            0%,
+            100% {
+                opacity: 1;
+                transform: scale(1);
+            }
+            50% {
+                opacity: 0.3;
+                transform: scale(0.7);
+            }
+        }
+
+        /* ================================================================
+           HEADER
+           ================================================================ */
+        .brand-header {
             text-align: center;
-            letter-spacing: -0.3px;
-            background: linear-gradient(135deg, #ffffff, #b0d4ff);
+            margin-bottom: 6px;
+            animation: fadeUp 0.7s ease 0.3s both;
+        }
+
+        @keyframes fadeUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .brand-header .logo {
+            width: 76px;
+            height: 76px;
+            object-fit: contain;
+            margin-bottom: 8px;
+            display: block;
+            margin-left: auto;
+            margin-right: auto;
+            border-radius: 50%;
+            background: rgba(0, 180, 255, 0.04);
+            padding: 8px;
+            border: 2px solid var(--border-light);
+            transition: all 0.4s ease;
+            animation: logoPulse 4s ease-in-out infinite;
+            filter: drop-shadow(0 0 20px rgba(0, 180, 255, 0.05));
+        }
+
+        .brand-header .logo:hover {
+            transform: scale(1.06) rotate(-6deg);
+            border-color: var(--border-hover);
+            filter: drop-shadow(0 0 40px rgba(0, 180, 255, 0.15));
+        }
+
+        @keyframes logoPulse {
+            0%,
+            100% {
+                box-shadow: 0 0 0 0 rgba(0, 120, 255, 0);
+            }
+            50% {
+                box-shadow: 0 0 40px rgba(0, 120, 255, 0.08);
+            }
+        }
+
+        .brand-name {
+            font-size: 28px;
+            font-weight: 800;
+            letter-spacing: 2px;
+            color: var(--text-primary);
+            line-height: 1.2;
+            transition: color 0.4s ease;
+            text-shadow: 0 0 40px rgba(0, 180, 255, 0.05);
+        }
+
+        .brand-name .gradient-text {
+            background: linear-gradient(135deg, #ffffff, var(--accent-blue), var(--accent-blue-dark));
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
+            background-size: 200% 200%;
+            animation: gradientMove 4s ease-in-out infinite;
+        }
+
+        @keyframes gradientMove {
+            0%,
+            100% {
+                background-position: 0% 50%;
+            }
+            50% {
+                background-position: 100% 50%;
+            }
+        }
+
+        .brand-sub {
+            font-size: 12px;
+            font-weight: 600;
+            letter-spacing: 5px;
+            text-transform: uppercase;
+            color: var(--text-muted);
+            margin-top: 2px;
+            transition: color 0.4s ease;
+        }
+
+        .tagline {
+            font-size: 12px;
+            font-weight: 300;
+            letter-spacing: 4px;
+            text-transform: uppercase;
+            color: var(--text-muted);
+            margin-top: 10px;
+            padding-top: 12px;
+            border-top: 1px solid var(--border-light);
+            font-style: italic;
+            transition: all 0.4s ease;
+            animation: taglineFloat 4s ease-in-out infinite;
+            opacity: 0.6;
+        }
+
+        @keyframes taglineFloat {
+            0%,
+            100% {
+                transform: translateY(0);
+                opacity: 0.6;
+            }
+            50% {
+                transform: translateY(-3px);
+                opacity: 0.9;
+            }
+        }
+
+        /* ================================================================
+           EXPERTISE
+           ================================================================ */
+        .expertise-section {
+            display: flex;
+            justify-content: center;
+            gap: 28px;
+            margin: 16px 0 20px;
+            animation: fadeUp 0.7s ease 0.4s both;
+        }
+
+        .expertise-item {
+            text-align: center;
+            padding: 8px 0;
+            position: relative;
+            cursor: default;
+            transition: all 0.3s ease;
+        }
+
+        .expertise-item:hover {
+            transform: translateY(-4px) scale(1.05);
+        }
+
+        .expertise-item .icon {
+            font-size: 26px;
+            display: block;
+            margin-bottom: 4px;
+            transition: all 0.3s ease;
+            filter: drop-shadow(0 0 10px rgba(0, 180, 255, 0.05));
+        }
+
+        .expertise-item:hover .icon {
+            transform: scale(1.15) rotate(-6deg);
+            filter: drop-shadow(0 0 20px rgba(0, 180, 255, 0.15));
+        }
+
+        .expertise-item .label {
+            font-size: 10px;
+            font-weight: 700;
+            letter-spacing: 2.5px;
+            text-transform: uppercase;
+            color: var(--text-muted);
+            transition: all 0.3s ease;
+        }
+
+        .expertise-item .label.active {
+            color: var(--accent-blue);
+            text-shadow: 0 0 20px rgba(0, 180, 255, 0.2);
+        }
+
+        /* ================================================================
+           DIVIDER
+           ================================================================ */
+        .divider {
+            height: 1px;
+            background: linear-gradient(90deg, transparent, var(--border-light), transparent);
+            margin: 4px 0 18px;
+            transition: background 0.4s ease;
+        }
+
+        /* ================================================================
+           PROFILE
+           ================================================================ */
+        .profile-section {
+            text-align: center;
+            margin-bottom: 16px;
+            animation: fadeUp 0.7s ease 0.5s both;
+        }
+
+        .profile-avatar {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            margin: 0 auto 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 34px;
+            font-weight: 700;
+            color: var(--text-primary);
+            box-shadow: 0 8px 40px var(--glow-color);
+            border: 2px solid var(--border-light);
+            user-select: none;
+            overflow: hidden;
+            background: var(--avatar-bg);
+            transition: all 0.4s ease;
+            animation: avatarFloat 5s ease-in-out infinite;
+        }
+
+        @keyframes avatarFloat {
+            0%,
+            100% {
+                transform: translateY(0);
+            }
+            50% {
+                transform: translateY(-6px);
+            }
+        }
+
+        .profile-avatar:hover {
+            border-color: var(--border-hover);
+            transform: scale(1.04);
+            box-shadow: 0 8px 50px var(--glow-color);
+        }
+
+        .profile-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .profile-avatar .initials {
+            display: none;
+        }
+
+        .profile-avatar.has-image .initials {
+            display: none;
+        }
+        .profile-avatar.has-image img {
+            display: block;
+        }
+        .profile-avatar:not(.has-image) .initials {
+            display: block;
+        }
+        .profile-avatar:not(.has-image) img {
+            display: none;
+        }
+
+        .profile-name {
+            font-size: 22px;
+            font-weight: 700;
+            text-align: center;
+            letter-spacing: 0.5px;
+            color: var(--text-primary);
+            margin-bottom: 2px;
+            transition: color 0.4s ease;
         }
 
         .profile-title {
             text-align: center;
-            font-size: 15px;
+            font-size: 12px;
             font-weight: 500;
-            color: rgba(255, 255, 255, 0.7);
-            margin-top: 2px;
+            color: var(--text-muted);
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            transition: color 0.4s ease;
         }
 
         .profile-company {
             text-align: center;
-            font-size: 14px;
-            color: rgba(0, 180, 255, 0.8);
-            font-weight: 500;
-            letter-spacing: 0.3px;
-            margin-top: 2px;
+            font-size: 11px;
+            color: var(--accent-blue);
+            font-weight: 400;
+            letter-spacing: 2.5px;
+            text-transform: uppercase;
+            margin-top: 4px;
+            transition: color 0.4s ease;
+            text-shadow: 0 0 20px rgba(0, 180, 255, 0.05);
         }
 
-        /* ===== CONTACT DETAILS ===== */
+        /* ================================================================
+           CONTACT DETAILS
+           ================================================================ */
         .contact-grid {
-            margin: 24px 0 22px;
+            margin: 14px 0 16px;
             display: flex;
             flex-direction: column;
-            gap: 10px;
+            gap: 6px;
+            animation: fadeUp 0.7s ease 0.6s both;
         }
 
         .contact-item {
             display: flex;
             align-items: center;
             gap: 14px;
-            padding: 12px 16px;
-            background: rgba(255, 255, 255, 0.04);
-            border-radius: 16px;
-            border: 1px solid rgba(255, 255, 255, 0.06);
-            transition: all 0.2s;
+            padding: 11px 16px;
+            background: var(--contact-bg);
+            border-radius: 14px;
+            border: 1px solid var(--border-light);
+            transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
             text-decoration: none;
-            color: #e8edf5;
-            cursor: default;
+            color: var(--text-primary);
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .contact-item::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, var(--accent-glow), transparent);
+            transition: left 0.6s ease;
+        }
+
+        .contact-item:hover::after {
+            left: 100%;
+        }
+
+        .contact-item:hover {
+            background: var(--bg-card-hover);
+            border-color: var(--border-hover);
+            transform: translateX(6px);
+            box-shadow: var(--shadow-glow);
         }
 
         .contact-item:active {
-            transform: scale(0.98);
-            background: rgba(255, 255, 255, 0.08);
+            transform: scale(0.97);
         }
 
         .contact-item .icon {
-            font-size: 20px;
-            width: 36px;
-            height: 36px;
+            font-size: 16px;
+            width: 32px;
+            height: 32px;
             display: flex;
             align-items: center;
             justify-content: center;
-            background: rgba(0, 180, 255, 0.12);
+            background: var(--accent-glow);
             border-radius: 10px;
             flex-shrink: 0;
+            color: var(--text-muted);
+            transition: all 0.3s ease;
+        }
+
+        .contact-item:hover .icon {
+            color: var(--accent-blue);
+            background: rgba(0, 120, 255, 0.12);
+            transform: scale(1.05);
         }
 
         .contact-item .info {
@@ -165,178 +745,276 @@
         }
 
         .contact-item .info .label {
-            font-size: 10px;
+            font-size: 8px;
             text-transform: uppercase;
-            letter-spacing: 0.8px;
-            color: rgba(255, 255, 255, 0.3);
-            font-weight: 600;
+            letter-spacing: 1.5px;
+            color: var(--text-muted);
+            font-weight: 700;
+            transition: color 0.3s ease;
         }
 
         .contact-item .info .value {
-            font-size: 15px;
+            font-size: 13px;
             font-weight: 500;
-            color: #f0f4ff;
+            color: var(--text-secondary);
             word-break: break-word;
+            transition: color 0.3s ease;
         }
 
         .contact-item .info .value a {
-            color: #6bb8ff;
+            color: var(--accent-blue);
             text-decoration: none;
+            transition: color 0.3s ease;
         }
 
         .contact-item .info .value a:hover {
-            text-decoration: underline;
+            color: var(--accent-blue-dark);
         }
 
-        /* ===== SOCIAL LINKS ===== */
+        .contact-item .action-arrow {
+            color: var(--text-dim);
+            font-size: 13px;
+            transition: all 0.3s ease;
+            font-weight: 300;
+        }
+
+        .contact-item:hover .action-arrow {
+            transform: translateX(6px);
+            color: var(--accent-blue);
+        }
+
+        /* ================================================================
+           SOCIAL LINKS - All Three Icons
+           ================================================================ */
         .social-row {
             display: flex;
             justify-content: center;
             gap: 14px;
-            margin: 18px 0 24px;
+            margin: 16px 0 20px;
             flex-wrap: wrap;
+            animation: fadeUp 0.7s ease 0.7s both;
         }
 
         .social-btn {
-            width: 48px;
-            height: 48px;
+            width: 46px;
+            height: 46px;
             border-radius: 50%;
-            background: rgba(255, 255, 255, 0.06);
-            border: 1px solid rgba(255, 255, 255, 0.08);
+            background: var(--social-bg);
+            border: 1px solid var(--border-light);
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 22px;
+            font-size: 20px;
             text-decoration: none;
-            color: #b0c8e8;
-            transition: all 0.25s;
+            color: var(--text-muted);
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            overflow: hidden;
+            position: relative;
+            cursor: pointer;
+        }
+
+        .social-btn::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            border-radius: 50%;
+            background: var(--accent-glow);
+            opacity: 0;
+            transition: opacity 0.4s ease;
+        }
+
+        .social-btn:hover::before {
+            opacity: 1;
+        }
+
+        .social-btn img {
+            width: 22px;
+            height: 22px;
+            object-fit: contain;
+            position: relative;
+            z-index: 1;
+            filter: brightness(0.7);
+            transition: filter 0.3s ease;
+        }
+
+        .social-btn:hover img {
+            filter: brightness(1);
+        }
+
+        .social-btn .emoji-icon {
+            display: block;
+            position: relative;
+            z-index: 1;
+        }
+
+        .social-btn.has-image .emoji-icon {
+            display: none;
+        }
+        .social-btn.has-image img {
+            display: block;
+        }
+        .social-btn:not(.has-image) .emoji-icon {
+            display: block;
+        }
+        .social-btn:not(.has-image) img {
+            display: none;
+        }
+
+        .social-btn:hover {
+            color: var(--text-primary);
+            border-color: var(--border-hover);
+            transform: translateY(-4px) scale(1.08);
+            box-shadow: var(--shadow-glow);
         }
 
         .social-btn:active {
-            transform: scale(0.9);
-            background: rgba(0, 180, 255, 0.2);
-            border-color: rgba(0, 180, 255, 0.3);
+            transform: scale(0.92);
         }
 
-        /* ===== MAIN ACTION BUTTON ===== */
+        /* Individual social button hover colors */
+        .social-btn[title="LinkedIn"]:hover {
+            border-color: #0a66c2;
+            background: rgba(10, 102, 194, 0.12);
+            box-shadow: 0 8px 30px rgba(10, 102, 194, 0.15);
+        }
+        .social-btn[title="Instagram"]:hover {
+            border-color: #e4405f;
+            background: rgba(228, 64, 95, 0.12);
+            box-shadow: 0 8px 30px rgba(228, 64, 95, 0.15);
+        }
+        .social-btn[title="WhatsApp"]:hover {
+            border-color: #25d366;
+            background: rgba(37, 211, 102, 0.12);
+            box-shadow: 0 8px 30px rgba(37, 211, 102, 0.15);
+        }
+
+        /* ================================================================
+           BUTTONS
+           ================================================================ */
         .btn-save {
             width: 100%;
-            padding: 18px;
-            background: linear-gradient(135deg, #0077ff, #00b4ff);
-            border: none;
+            padding: 16px;
+            background: linear-gradient(135deg, var(--gradient-start), var(--gradient-end));
+            border: 1px solid var(--border-light);
             border-radius: 60px;
-            color: white;
-            font-size: 18px;
-            font-weight: 700;
-            letter-spacing: 0.5px;
+            color: var(--text-secondary);
+            font-size: 15px;
+            font-weight: 600;
+            letter-spacing: 1px;
             cursor: pointer;
-            transition: all 0.25s;
-            box-shadow: 0 8px 30px rgba(0, 120, 255, 0.35);
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
             display: flex;
             align-items: center;
             justify-content: center;
             gap: 12px;
-            margin: 10px 0 14px;
+            margin: 4px 0 10px;
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            position: relative;
+            overflow: hidden;
+            animation: fadeUp 0.7s ease 0.8s both;
+        }
+
+        .btn-save::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            border-radius: 60px;
+            background: linear-gradient(135deg, var(--gradient-start), var(--gradient-end));
+            opacity: 0;
+            transition: opacity 0.4s ease;
+        }
+
+        .btn-save:hover::before {
+            opacity: 1;
+        }
+
+        .btn-save:hover {
+            border-color: var(--border-hover);
+            transform: translateY(-3px);
+            box-shadow: var(--shadow-glow);
         }
 
         .btn-save:active {
             transform: scale(0.97);
-            box-shadow: 0 4px 15px rgba(0, 120, 255, 0.2);
+        }
+
+        .btn-save .icon-btn {
+            font-size: 17px;
+            position: relative;
+            z-index: 1;
+        }
+        .btn-save span {
+            position: relative;
+            z-index: 1;
         }
 
         .btn-save.secondary {
-            background: rgba(255, 255, 255, 0.06);
-            box-shadow: none;
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            font-weight: 600;
-            font-size: 15px;
-            color: #b0c8e8;
-        }
-
-        .btn-save.secondary:active {
-            background: rgba(255, 255, 255, 0.12);
-        }
-
-        /* ===== QR CODE SECTION ===== */
-        .qr-section {
-            text-align: center;
-            margin: 22px 0 8px;
-            padding: 20px 0 10px;
-            border-top: 1px solid rgba(255, 255, 255, 0.06);
-        }
-
-        .qr-section .qr-label {
-            font-size: 11px;
-            text-transform: uppercase;
-            letter-spacing: 2px;
-            color: rgba(255, 255, 255, 0.25);
-            margin-bottom: 14px;
-        }
-
-        #qrcode {
-            display: inline-block;
-            background: white;
-            padding: 10px;
-            border-radius: 16px;
-            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.5);
-        }
-
-        #qrcode img {
-            display: block;
-        }
-
-        .qr-hint {
-            font-size: 11px;
-            color: rgba(255, 255, 255, 0.2);
-            margin-top: 12px;
-            letter-spacing: 0.3px;
-        }
-
-        /* ===== SCAN COUNTER ===== */
-        .scan-badge {
-            text-align: center;
-            font-size: 11px;
-            color: rgba(255, 255, 255, 0.15);
-            margin-top: 16px;
+            background: var(--contact-bg);
+            border: 1px solid var(--border-light);
+            font-weight: 400;
+            font-size: 13px;
+            color: var(--text-muted);
             letter-spacing: 0.5px;
+            margin-top: 2px;
         }
 
-        /* ===== RESPONSIVE ===== */
-        @media (max-width: 440px) {
-            .card-container {
-                padding: 22px 16px 28px;
-                border-radius: 28px;
-            }
-            .profile-name {
-                font-size: 22px;
-            }
-            .contact-item .info .value {
-                font-size: 14px;
-            }
-            .social-btn {
-                width: 44px;
-                height: 44px;
-                font-size: 19px;
-            }
+        .btn-save.secondary:hover {
+            background: var(--bg-card-hover);
+            border-color: var(--border-hover);
+            box-shadow: none;
+            transform: none;
         }
 
-        /* ===== TOAST NOTIFICATION ===== */
+        /* ================================================================
+           FOOTER
+           ================================================================ */
+        .card-footer {
+            text-align: center;
+            margin-top: 18px;
+            padding-top: 14px;
+            border-top: 1px solid var(--border-light);
+            animation: fadeUp 0.7s ease 0.9s both;
+        }
+
+        .card-footer .footer-text {
+            font-size: 8px;
+            letter-spacing: 2.5px;
+            text-transform: uppercase;
+            color: var(--text-dim);
+            transition: color 0.4s ease;
+            font-weight: 600;
+        }
+
+        .card-footer .scan-badge {
+            font-size: 9px;
+            color: var(--text-dim);
+            margin-top: 6px;
+            letter-spacing: 0.5px;
+            transition: color 0.4s ease;
+        }
+
+        /* ================================================================
+           TOAST
+           ================================================================ */
         .toast {
             position: fixed;
             bottom: 30px;
             left: 50%;
             transform: translateX(-50%) translateY(80px);
-            background: rgba(0, 20, 40, 0.95);
+            background: var(--toast-bg);
             backdrop-filter: blur(12px);
-            padding: 14px 24px;
+            -webkit-backdrop-filter: blur(12px);
+            padding: 12px 24px;
             border-radius: 60px;
-            border: 1px solid rgba(0, 180, 255, 0.2);
-            color: #e8edf5;
-            font-size: 14px;
+            border: 1px solid var(--border-light);
+            color: var(--text-secondary);
+            font-size: 13px;
             font-weight: 500;
-            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.6);
+            letter-spacing: 0.5px;
+            box-shadow: var(--shadow-card);
             opacity: 0;
-            transition: all 0.4s cubic-bezier(0.2, 0.9, 0.3, 1.2);
+            transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
             pointer-events: none;
             white-space: nowrap;
             z-index: 999;
@@ -346,154 +1024,442 @@
             opacity: 1;
             transform: translateX(-50%) translateY(0);
         }
+
+        /* ================================================================
+           RESPONSIVE
+           ================================================================ */
+        @media (max-width: 420px) {
+            .card-container {
+                padding: 24px 16px 28px;
+                border-radius: 24px;
+            }
+            .brand-name {
+                font-size: 22px;
+            }
+            .brand-header .logo {
+                width: 60px;
+                height: 60px;
+            }
+            .profile-name {
+                font-size: 18px;
+            }
+            .contact-item .info .value {
+                font-size: 12px;
+            }
+            .social-btn {
+                width: 40px;
+                height: 40px;
+                font-size: 17px;
+            }
+            .social-btn img {
+                width: 19px;
+                height: 19px;
+            }
+            .expertise-item .icon {
+                font-size: 22px;
+            }
+            .expertise-item .label {
+                font-size: 8px;
+            }
+            .expertise-section {
+                gap: 18px;
+            }
+            .profile-avatar {
+                width: 68px;
+                height: 68px;
+                font-size: 28px;
+            }
+            .top-bar .logo-small {
+                height: 26px;
+            }
+            .btn-save {
+                padding: 14px;
+                font-size: 13px;
+            }
+            .theme-toggle {
+                width: 40px;
+                height: 40px;
+                font-size: 18px;
+                top: 12px;
+                right: 12px;
+            }
+            .float-element {
+                font-size: 20px !important;
+                opacity: 0.08 !important;
+            }
+        }
+
+        @media (max-width: 360px) {
+            .card-container {
+                padding: 18px 12px 22px;
+                border-radius: 18px;
+            }
+            .brand-name {
+                font-size: 18px;
+                letter-spacing: 1px;
+            }
+            .expertise-section {
+                gap: 12px;
+            }
+            .expertise-item .icon {
+                font-size: 18px;
+            }
+            .contact-item {
+                padding: 8px 10px;
+            }
+            .float-element {
+                display: none !important;
+            }
+        }
+
+        /* ================================================================
+           SCROLLBAR
+           ================================================================ */
+        ::-webkit-scrollbar {
+            width: 4px;
+        }
+        ::-webkit-scrollbar-track {
+            background: var(--bg-primary);
+        }
+        ::-webkit-scrollbar-thumb {
+            background: var(--accent-blue);
+            border-radius: 4px;
+        }
     </style>
 </head>
 <body>
 
-    <div class="card-container" id="app">
+    <!-- ================================================================
+    ANIMATED STARS BACKGROUND (Canvas)
+    ================================================================ -->
+    <canvas id="stars-canvas"></canvas>
 
-        <!-- HEADER -->
-        <div class="brand-header">
-            <div class="logo-icon">⚡ NEXUSTEKFUSION</div>
-            <div class="sub">Digital Business Card</div>
-        </div>
-        <div class="divider"></div>
-
-        <!-- PROFILE -->
-        <div class="profile-avatar" id="avatarInitials">NT</div>
-        <div class="profile-name" id="displayName">[Your Full Name]</div>
-        <div class="profile-title" id="displayTitle">Founder &amp; Director</div>
-        <div class="profile-company" id="displayCompany">NEXUSTEKFUSION Pvt. Ltd.</div>
-
-        <!-- CONTACT DETAILS -->
-        <div class="contact-grid" id="contactGrid">
-            <!-- Phone -->
-            <div class="contact-item" id="phoneItem">
-                <div class="icon">📞</div>
-                <div class="info">
-                    <div class="label">Phone</div>
-                    <div class="value"><a href="tel:+919876543210" id="phoneLink">+91 98765 43210</a></div>
-                </div>
-            </div>
-
-            <!-- Email -->
-            <div class="contact-item" id="emailItem">
-                <div class="icon">✉️</div>
-                <div class="info">
-                    <div class="label">Email</div>
-                    <div class="value"><a href="mailto:contact@nexustekfusion.com" id="emailLink">contact@nexustekfusion.com</a></div>
-                </div>
-            </div>
-
-            <!-- Website -->
-            <div class="contact-item" id="websiteItem">
-                <div class="icon">🌐</div>
-                <div class="info">
-                    <div class="label">Website</div>
-                    <div class="value"><a href="https://nexustekfusion.com" target="_blank" id="websiteLink">nexustekfusion.com</a></div>
-                </div>
-            </div>
-
-            <!-- Address -->
-            <div class="contact-item" id="addressItem">
-                <div class="icon">📍</div>
-                <div class="info">
-                    <div class="label">Address</div>
-                    <div class="value" id="addressText">[Your Office Address, City, Country]</div>
-                </div>
-            </div>
-        </div>
-
-        <!-- SOCIAL LINKS -->
-        <div class="social-row" id="socialRow">
-            <a href="#" class="social-btn" id="linkedinBtn" target="_blank">🔗</a>
-            <a href="#" class="social-btn" id="instagramBtn" target="_blank">📷</a>
-            <a href="#" class="social-btn" id="whatsappBtn" target="_blank">💬</a>
-        </div>
-
-        <!-- PRIMARY ACTION: SAVE CONTACT -->
-        <button class="btn-save" id="saveContactBtn">
-            📇 &nbsp; Save Contact (.vcf)
-        </button>
-
-        <!-- SECONDARY: Open vCard directly -->
-        <button class="btn-save secondary" id="openVcfBtn">
-            ⬇️ &nbsp; Download vCard File
-        </button>
-
-        <!-- QR CODE SECTION -->
-        <div class="qr-section">
-            <div class="qr-label">🔳 Scan to Save Contact</div>
-            <div id="qrcode"></div>
-            <div class="qr-hint">Point your phone camera at this QR code</div>
-        </div>
-
-        <!-- SCAN COUNTER -->
-        <div class="scan-badge" id="scanCounter">👁️ 0 scans</div>
+    <!-- ================================================================
+    FLOATING ELEMENTS (Planets, Drones, Clouds)
+    ================================================================ -->
+    <div class="floating-elements">
+        <div class="float-element">🌍</div>
+        <div class="float-element">🛸</div>
+        <div class="float-element">☁️</div>
+        <div class="float-element">🚀</div>
+        <div class="float-element">🌌</div>
+        <div class="float-element">🛰️</div>
+        <div class="float-element">☁️</div>
+        <div class="float-element">🌕</div>
     </div>
 
-    <!-- TOAST -->
+    <!-- ================================================================
+    THEME TOGGLE
+    ================================================================ -->
+    <button class="theme-toggle" id="themeToggle" aria-label="Toggle theme">
+        <span class="icon-sun">☀️</span>
+        <span class="icon-moon">🌙</span>
+    </button>
+
+    <!-- ================================================================
+    CARD
+    ================================================================ -->
+    <div class="card-container" id="app">
+
+        <!-- Glow Border -->
+        <div class="glow-border"></div>
+
+        <!-- ===== CARD BACKGROUND IMAGE ===== -->
+        <img src="assets/images/card-bg.jpg" alt="" class="card-bg" id="cardBg" onerror="this.style.display='none'" />
+
+        <div class="card-content">
+
+            <!-- ===== TOP BAR ===== -->
+            <div class="top-bar">
+                <img src="assets/images/logo.png" alt="NEXUSTEK FUSION" class="logo-small" id="logoSmall" onerror="this.style.display='none'" />
+                <div class="status-dot">
+                    <span class="dot"></span>
+                    <span>Available</span>
+                </div>
+            </div>
+
+            <!-- ===== HEADER ===== -->
+            <div class="brand-header">
+                <img src="assets/images/logo.png" alt="NEXUSTEK FUSION" class="logo" id="logoImg" onerror="this.style.display='none'" />
+                <div class="brand-name">
+                    <span class="gradient-text">NEXUSTEK FUSION</span>
+                </div>
+                <div class="brand-sub">PVT. LTD.</div>
+                <div class="tagline">✦ WHERE IDEAS TAKE FLIGHT ✦</div>
+            </div>
+
+            <!-- ===== EXPERTISE ===== -->
+            <div class="expertise-section">
+                <div class="expertise-item">
+                    <span class="icon">🌾</span>
+                    <span class="label active">AGRI</span>
+                </div>
+                <div class="expertise-item">
+                    <span class="icon">🚁</span>
+                    <span class="label">FPV</span>
+                </div>
+                <div class="expertise-item">
+                    <span class="icon">✈️</span>
+                    <span class="label">VTOL</span>
+                </div>
+            </div>
+
+            <div class="divider"></div>
+
+            <!-- ===== PROFILE ===== -->
+            <div class="profile-section">
+                <div class="profile-avatar" id="avatarContainer">
+                    <img src="assets/images/profile.png" alt="Profile" id="profileImg" onerror="this.style.display='none'" />
+                    <span class="initials" id="avatarInitials">SB</span>
+                </div>
+                <div class="profile-name" id="displayName">Sahil Prakash Bhagat</div>
+                <div class="profile-title" id="displayTitle">Founder &amp; Director</div>
+                <div class="profile-company" id="displayCompany">NEXUSTEK FUSION PVT. LTD.</div>
+            </div>
+
+            <!-- ===== CONTACT DETAILS ===== -->
+            <div class="contact-grid" id="contactGrid">
+                <!-- Phone -->
+                <div class="contact-item" id="phoneItem">
+                    <div class="icon">📞</div>
+                    <div class="info">
+                        <div class="label">Phone</div>
+                        <div class="value"><a href="tel:+919657270849" id="phoneLink">+91 96572 70849</a></div>
+                    </div>
+                    <span class="action-arrow">→</span>
+                </div>
+
+                <!-- Email -->
+                <div class="contact-item" id="emailItem">
+                    <div class="icon">✉️</div>
+                    <div class="info">
+                        <div class="label">Email</div>
+                        <div class="value"><a href="mailto:sb284160@gmail.com" id="emailLink">sb284160@gmail.com</a></div>
+                    </div>
+                    <span class="action-arrow">→</span>
+                </div>
+
+                <!-- Website -->
+                <div class="contact-item" id="websiteItem">
+                    <div class="icon">🌐</div>
+                    <div class="info">
+                        <div class="label">Website</div>
+                        <div class="value"><a href="https://nexustekfusion.in" target="_blank" id="websiteLink">nexustekfusion.in</a></div>
+                    </div>
+                    <span class="action-arrow">→</span>
+                </div>
+
+                <!-- Address -->
+                <div class="contact-item" id="addressItem">
+                    <div class="icon">📍</div>
+                    <div class="info">
+                        <div class="label">Address</div>
+                        <div class="value" id="addressText">Shop no.19, NIT complex, Ganeshpeth Colony, Nagpur</div>
+                    </div>
+                    <span class="action-arrow">→</span>
+                </div>
+            </div>
+
+            <!-- ===== SOCIAL LINKS - All Three Icons ===== -->
+            <div class="social-row" id="socialRow">
+                <!-- LinkedIn -->
+                <a href="https://in.linkedin.com/in/sahil-bhagat-36b5301a1" class="social-btn" id="linkedinBtn" target="_blank" title="LinkedIn" aria-label="LinkedIn">
+                    <img src="assets/icons/linkedin.png" alt="LinkedIn" onerror="this.style.display='none'" />
+                    <span class="emoji-icon">🔗</span>
+                </a>
+
+                <!-- Instagram -->
+                <a href="https://www.instagram.com/sahil_bhagat_329/" class="social-btn" id="instagramBtn" target="_blank" title="Instagram" aria-label="Instagram">
+                    <img src="assets/icons/instagram.png" alt="Instagram" onerror="this.style.display='none'" />
+                    <span class="emoji-icon">📷</span>
+                </a>
+
+                <!-- WhatsApp with Auto-Message -->
+                <button class="social-btn" id="whatsappBtn" title="Chat on WhatsApp" aria-label="WhatsApp">
+                    <img src="assets/icons/whatsapp.png" alt="WhatsApp" onerror="this.style.display='none'" />
+                    <span class="emoji-icon">💬</span>
+                </button>
+            </div>
+
+            <!-- ===== ACTION BUTTONS ===== -->
+            <button class="btn-save" id="saveContactBtn">
+                <span class="icon-btn">📇</span> <span>Save Contact (.vcf)</span>
+            </button>
+
+            <button class="btn-save secondary" id="openVcfBtn">
+                <span class="icon-btn">⬇️</span> <span>Download vCard File</span>
+            </button>
+
+            <!-- ===== FOOTER ===== -->
+            <div class="card-footer">
+                <div class="footer-text">NEXUSTEK FUSION PVT. LTD.</div>
+                <div class="scan-badge" id="scanCounter">✦ 0 views</div>
+            </div>
+
+        </div><!-- /card-content -->
+    </div><!-- /card-container -->
+
+    <!-- ===== TOAST ===== -->
     <div class="toast" id="toast"></div>
 
     <script>
         // ================================================================
-        //  CONFIGURATION — EDIT YOUR DETAILS HERE
+        //  STARS BACKGROUND (Canvas Animation)
+        // ================================================================
+        (function initStars() {
+            const canvas = document.getElementById('stars-canvas');
+            const ctx = canvas.getContext('2d');
+            let stars = [];
+            let w, h;
+
+            function resize() {
+                w = canvas.width = window.innerWidth;
+                h = canvas.height = window.innerHeight;
+            }
+            window.addEventListener('resize', resize);
+            resize();
+
+            const NUM_STARS = 200;
+            for (let i = 0; i < NUM_STARS; i++) {
+                stars.push({
+                    x: Math.random() * w,
+                    y: Math.random() * h,
+                    radius: Math.random() * 1.5 + 0.5,
+                    speed: Math.random() * 0.02 + 0.005,
+                    opacity: Math.random() * 0.8 + 0.2,
+                    twinkleSpeed: Math.random() * 0.02 + 0.005
+                });
+            }
+
+            let time = 0;
+
+            function drawStars() {
+                time += 0.01;
+                ctx.clearRect(0, 0, w, h);
+
+                stars.forEach(star => {
+                    const twinkle = Math.sin(time * star.twinkleSpeed * 10 + star.x) * 0.3 + 0.7;
+                    const opacity = star.opacity * twinkle;
+
+                    star.x += star.speed * 0.3;
+                    if (star.x > w) star.x = 0;
+                    if (star.x < 0) star.x = w;
+
+                    ctx.beginPath();
+                    ctx.arc(star.x, star.y, star.radius, 0, Math.PI * 2);
+                    ctx.fillStyle = `rgba(255, 255, 255, ${opacity * 0.6})`;
+                    ctx.fill();
+
+                    if (star.radius > 1.2) {
+                        ctx.shadowColor = 'rgba(0, 180, 255, 0.1)';
+                        ctx.shadowBlur = 8;
+                        ctx.beginPath();
+                        ctx.arc(star.x, star.y, star.radius * 1.5, 0, Math.PI * 2);
+                        ctx.fillStyle = `rgba(0, 180, 255, ${opacity * 0.05})`;
+                        ctx.fill();
+                        ctx.shadowBlur = 0;
+                    }
+                });
+
+                if (Math.random() < 0.001) {
+                    const sx = Math.random() * w * 0.8;
+                    const sy = Math.random() * h * 0.3;
+                    const len = 60 + Math.random() * 60;
+                    const angle = Math.PI / 4 + Math.random() * 0.3;
+                    const grad = ctx.createLinearGradient(sx, sy, sx + len * Math.cos(angle), sy + len * Math.sin(angle));
+                    grad.addColorStop(0, 'rgba(255, 255, 255, 0.8)');
+                    grad.addColorStop(1, 'rgba(255, 255, 255, 0)');
+                    ctx.beginPath();
+                    ctx.moveTo(sx, sy);
+                    ctx.lineTo(sx + len * Math.cos(angle), sy + len * Math.sin(angle));
+                    ctx.strokeStyle = grad;
+                    ctx.lineWidth = 2;
+                    ctx.stroke();
+                }
+
+                requestAnimationFrame(drawStars);
+            }
+
+            drawStars();
+        })();
+
+        // ================================================================
+        //  CONFIGURATION
         // ================================================================
         const MY_DATA = {
-            // --- Personal ---
-            fullName: "Your Full Name",             // e.g. "Rahul Sharma"
-            firstName: "Your",                      // e.g. "Rahul"
-            lastName: "Name",                       // e.g. "Sharma"
+            fullName: "Sahil Prakash Bhagat",
+            firstName: "Sahil",
+            lastName: "Bhagat",
             title: "Founder & Director",
-            company: "NEXUSTEKFUSION Pvt. Ltd.",
-
-            // --- Contact ---
-            phone: "+91 98765 43210",               // with country code
-            phoneRaw: "+919876543210",              // no spaces, for vCard
-            email: "contact@nexustekfusion.com",
-            website: "https://nexustekfusion.com",
-            websiteDisplay: "nexustekfusion.com",
-
-            // --- Address ---
-            address: "Your Office Address, City, State, Country",
-
-            // --- Social (full URLs) ---
-            linkedin: "https://linkedin.com/in/yourprofile",
-            instagram: "https://instagram.com/yourhandle",
-            whatsapp: "https://wa.me/919876543210", // use phone with country code
-
-            // --- QR Code URL (the page where this card lives) ---
-            cardUrl: "https://nexustekfusion.com/card"  // CHANGE THIS to your hosted URL
+            company: "NEXUSTEK FUSION PVT. LTD.",
+            phone: "+91 96572 70849",
+            phoneRaw: "+919657270849",
+            email: "sb284160@gmail.com",
+            website: "https://nexustekfusion.in",
+            websiteDisplay: "nexustekfusion.in",
+            address: "Shop no.19, NIT complex, Ganeshpeth Colony, Nagpur",
+            linkedin: "https://in.linkedin.com/in/sahil-bhagat-36b5301a1",
+            instagram: "https://www.instagram.com/sahil_bhagat_329/",
+            whatsapp: "https://wa.me/919657270849"
         };
 
         // ================================================================
-        //  BUILD VCF CONTENT
+        //  THEME TOGGLE
+        // ================================================================
+        const themeToggle = document.getElementById('themeToggle');
+        const htmlElement = document.documentElement;
+
+        const savedTheme = localStorage.getItem('nexus_theme') || 'dark';
+        htmlElement.setAttribute('data-theme', savedTheme);
+
+        themeToggle.addEventListener('click', function() {
+            const currentTheme = htmlElement.getAttribute('data-theme');
+            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+            htmlElement.setAttribute('data-theme', newTheme);
+            localStorage.setItem('nexus_theme', newTheme);
+
+            this.style.transform = 'scale(0.8) rotate(30deg)';
+            setTimeout(() => {
+                this.style.transform = '';
+            }, 300);
+        });
+
+        // ================================================================
+        //  BUILD VCF
         // ================================================================
         function generateVcf(data) {
             const now = new Date().toISOString().replace(/[-:]/g, '').slice(0, 15) + 'Z';
             return `BEGIN:VCARD
-VERSION:3.0
-FN:${data.fullName}
-N:${data.lastName};${data.firstName};;;
-ORG:${data.company}
-TITLE:${data.title}
-TEL;TYPE=CELL,VOICE:${data.phoneRaw}
-EMAIL:${data.email}
-URL:${data.website}
-ADR;TYPE=WORK:;;${data.address};;;;
-REV:${now}
-END:VCARD`;
+        VERSION:3.0
+        FN:${data.fullName}
+        N:${data.lastName};${data.firstName};;;
+        ORG:${data.company}
+        TITLE:${data.title}
+        TEL;TYPE=CELL,VOICE:${data.phoneRaw}
+        EMAIL:${data.email}
+        URL:${data.website}
+        ADR;TYPE=WORK:;;${data.address};;;;
+        REV:${now}
+        END:VCARD`;
         }
 
         // ================================================================
         //  RENDER UI
         // ================================================================
         function renderUI(data) {
-            document.getElementById('avatarInitials').textContent = data.firstName[0] + data.lastName[0];
+            const profileImg = document.getElementById('profileImg');
+            const avatarContainer = document.getElementById('avatarContainer');
+
+            if (profileImg.complete && profileImg.naturalHeight !== 0) {
+                avatarContainer.classList.add('has-image');
+            } else {
+                avatarContainer.classList.remove('has-image');
+                document.getElementById('avatarInitials').textContent = data.firstName[0] + data.lastName[0];
+            }
+
             document.getElementById('displayName').textContent = data.fullName;
             document.getElementById('displayTitle').textContent = data.title;
             document.getElementById('displayCompany').textContent = data.company;
-
             document.getElementById('phoneLink').textContent = data.phone;
             document.getElementById('phoneLink').href = 'tel:' + data.phoneRaw;
             document.getElementById('emailLink').textContent = data.email;
@@ -501,14 +1467,12 @@ END:VCARD`;
             document.getElementById('websiteLink').textContent = data.websiteDisplay;
             document.getElementById('websiteLink').href = data.website;
             document.getElementById('addressText').textContent = data.address;
-
             document.getElementById('linkedinBtn').href = data.linkedin;
             document.getElementById('instagramBtn').href = data.instagram;
-            document.getElementById('whatsappBtn').href = data.whatsapp;
         }
 
         // ================================================================
-        //  SAVE / DOWNLOAD VCF
+        //  DOWNLOAD VCF
         // ================================================================
         function downloadVcf(filename = 'nexustekfusion_contact.vcf') {
             const vcf = generateVcf(MY_DATA);
@@ -521,7 +1485,7 @@ END:VCARD`;
             a.click();
             document.body.removeChild(a);
             setTimeout(() => URL.revokeObjectURL(url), 5000);
-            showToast('✅ vCard downloaded! Open it to save to your phone.');
+            showToast('✓ vCard downloaded. Open to save to your phone.');
         }
 
         function openVcfInNewTab() {
@@ -530,50 +1494,59 @@ END:VCARD`;
             const url = URL.createObjectURL(blob);
             window.open(url, '_blank');
             setTimeout(() => URL.revokeObjectURL(url), 10000);
-            showToast('📂 vCard opened in new tab. Download or save from there.');
+            showToast('📂 vCard opened in new tab.');
         }
 
         // ================================================================
-        //  QR CODE
+        //  WHATSAPP AUTO MESSAGE - Only via WhatsApp Icon
         // ================================================================
-        function generateQR() {
-            const container = document.getElementById('qrcode');
-            container.innerHTML = ''; // clear
-            new QRCode(container, {
-                text: MY_DATA.cardUrl,
-                width: 180,
-                height: 180,
-                colorDark: '#0a0e17',
-                colorLight: '#ffffff',
-                correctLevel: QRCode.CorrectLevel.H
-            });
+        function openWhatsAppWithMessage() {
+            const phone = MY_DATA.phoneRaw.replace('+', '');
+            const message = encodeURIComponent(
+                `Hi! I came across your NEXUSTEK FUSION business card and would like to connect with you.`
+            );
+            const url = `https://wa.me/${phone}?text=${message}`;
+            window.open(url, '_blank');
+            showToast('💬 Opening WhatsApp with a professional message...');
         }
 
         // ================================================================
-        //  SCAN ANALYTICS (localStorage)
+        //  VIEW COUNTER
         // ================================================================
-        function trackScan() {
-            let count = parseInt(localStorage.getItem('nexus_scans') || '0', 10);
+        function trackView() {
+            let count = parseInt(localStorage.getItem('nexus_views') || '0', 10);
             count += 1;
-            localStorage.setItem('nexus_scans', String(count));
-            document.getElementById('scanCounter').textContent = `👁️ ${count} scans`;
+            localStorage.setItem('nexus_views', String(count));
+            document.getElementById('scanCounter').textContent = `✦ ${count} views`;
         }
 
-        function loadScanCount() {
-            const count = parseInt(localStorage.getItem('nexus_scans') || '0', 10);
-            document.getElementById('scanCounter').textContent = `👁️ ${count} scans`;
+        function loadViewCount() {
+            const count = parseInt(localStorage.getItem('nexus_views') || '0', 10);
+            document.getElementById('scanCounter').textContent = `✦ ${count} views`;
         }
 
         // ================================================================
         //  TOAST
         // ================================================================
         let toastTimer = null;
+
         function showToast(msg) {
             const el = document.getElementById('toast');
             el.textContent = msg;
             el.classList.add('show');
             clearTimeout(toastTimer);
-            toastTimer = setTimeout(() => el.classList.remove('show'), 3000);
+            toastTimer = setTimeout(() => el.classList.remove('show'), 3500);
+        }
+
+        // ================================================================
+        //  HANDLE IMAGES
+        // ================================================================
+        function handleImageErrors() {
+            document.querySelectorAll('.social-btn img').forEach(img => {
+                if (img.complete && img.naturalHeight !== 0) {
+                    img.parentElement.classList.add('has-image');
+                }
+            });
         }
 
         // ================================================================
@@ -581,18 +1554,16 @@ END:VCARD`;
         // ================================================================
         document.addEventListener('DOMContentLoaded', function() {
             renderUI(MY_DATA);
-            generateQR();
-            loadScanCount();
-            trackScan();  // count this visit as a scan
+            loadViewCount();
+            trackView();
 
-            // --- Event listeners ---
             document.getElementById('saveContactBtn').addEventListener('click', downloadVcf);
             document.getElementById('openVcfBtn').addEventListener('click', openVcfInNewTab);
 
-            // Optional: track when QR is scanned via URL param
-            if (window.location.search.includes('scan=1')) {
-                trackScan();
-            }
+            // WhatsApp icon with auto-message (button, not anchor)
+            document.getElementById('whatsappBtn').addEventListener('click', openWhatsAppWithMessage);
+
+            setTimeout(handleImageErrors, 500);
         });
     </script>
 
