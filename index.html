@@ -32,6 +32,7 @@
             --toast-bg: rgba(0, 10, 25, 0.95);
             --contact-bg: rgba(255, 255, 255, 0.02);
             --social-bg: rgba(255, 255, 255, 0.02);
+            --overlay-bg: rgba(0, 0, 0, 0.92);
         }
 
         /* Light Theme */
@@ -57,6 +58,7 @@
             --toast-bg: rgba(255, 255, 255, 0.95);
             --contact-bg: rgba(0, 0, 0, 0.02);
             --social-bg: rgba(0, 0, 0, 0.02);
+            --overlay-bg: rgba(255, 255, 255, 0.95);
         }
 
         /* ================================================================
@@ -593,45 +595,63 @@
             background: var(--avatar-bg);
             transition: all 0.4s ease;
             animation: avatarFloat 5s ease-in-out infinite;
+            position: relative;
         }
 
-        @keyframes avatarFloat {
-            0%,
+        /* Loading shimmer effect */
+        .profile-avatar.loading::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            border-radius: 50%;
+            background: linear-gradient(90deg, 
+                transparent 0%, 
+                rgba(255, 255, 255, 0.05) 50%, 
+                transparent 100%
+            );
+            background-size: 200% 100%;
+            animation: shimmer 1.5s ease-in-out infinite;
+        }
+
+        @keyframes shimmer {
+            0% {
+                background-position: -200% 0;
+            }
             100% {
-                transform: translateY(0);
+                background-position: 200% 0;
             }
-            50% {
-                transform: translateY(-6px);
-            }
-        }
-
-        .profile-avatar:hover {
-            border-color: var(--border-hover);
-            transform: scale(1.04);
-            box-shadow: 0 8px 50px var(--glow-color);
         }
 
         .profile-avatar img {
             width: 100%;
             height: 100%;
             object-fit: cover;
+            display: none;
+        }
+
+        .profile-avatar img.loaded {
+            display: block;
         }
 
         .profile-avatar .initials {
-            display: none;
+            display: block;
+            position: relative;
+            z-index: 1;
         }
 
         .profile-avatar.has-image .initials {
             display: none;
         }
-        .profile-avatar.has-image img {
+
+        .profile-avatar.has-image img.loaded {
             display: block;
+        }
+
+        .profile-avatar:not(.has-image) img {
+            display: none;
         }
         .profile-avatar:not(.has-image) .initials {
             display: block;
-        }
-        .profile-avatar:not(.has-image) img {
-            display: none;
         }
 
         .profile-name {
@@ -784,7 +804,7 @@
         }
 
         /* ================================================================
-           SOCIAL LINKS - All Three Icons
+           SOCIAL LINKS
            ================================================================ */
         .social-row {
             display: flex;
@@ -967,6 +987,112 @@
         }
 
         /* ================================================================
+           FULL VIEW OVERLAY
+           ================================================================ */
+        .fullview-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: var(--overlay-bg);
+            z-index: 9999;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 40px;
+            opacity: 0;
+            transition: opacity 0.5s ease;
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+        }
+
+        .fullview-overlay.active {
+            display: flex;
+            opacity: 1;
+            animation: overlayIn 0.5s ease forwards;
+        }
+
+        @keyframes overlayIn {
+            from {
+                opacity: 0;
+                transform: scale(0.95);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        .fullview-overlay .close-btn {
+            position: fixed;
+            top: 25px;
+            right: 25px;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            color: var(--text-primary);
+            font-size: 28px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+            z-index: 10000;
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+        }
+
+        .fullview-overlay .close-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: scale(1.08) rotate(90deg);
+        }
+
+        .fullview-overlay .close-btn:active {
+            transform: scale(0.9);
+        }
+
+        .fullview-overlay img {
+            max-width: 95%;
+            max-height: 90vh;
+            object-fit: contain;
+            border-radius: 16px;
+            box-shadow: 0 30px 80px rgba(0, 0, 0, 0.6);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            animation: imageZoom 0.5s ease forwards;
+        }
+
+        @keyframes imageZoom {
+            from {
+                opacity: 0;
+                transform: scale(0.9);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        .fullview-overlay .image-info {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            color: var(--text-muted);
+            font-size: 12px;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            background: rgba(0, 0, 0, 0.4);
+            padding: 8px 20px;
+            border-radius: 60px;
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        /* ================================================================
            FOOTER
            ================================================================ */
         .card-footer {
@@ -1017,7 +1143,7 @@
             transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
             pointer-events: none;
             white-space: nowrap;
-            z-index: 999;
+            z-index: 9998;
         }
 
         .toast.show {
@@ -1086,6 +1212,21 @@
             .float-element {
                 font-size: 20px !important;
                 opacity: 0.08 !important;
+            }
+            .fullview-overlay {
+                padding: 20px;
+            }
+            .fullview-overlay .close-btn {
+                width: 40px;
+                height: 40px;
+                font-size: 22px;
+                top: 15px;
+                right: 15px;
+            }
+            .fullview-overlay .image-info {
+                font-size: 10px;
+                padding: 6px 16px;
+                bottom: 20px;
             }
         }
 
@@ -1157,15 +1298,21 @@
     </button>
 
     <!-- ================================================================
+    FULL VIEW OVERLAY
+    ================================================================ -->
+    <div class="fullview-overlay" id="fullviewOverlay">
+        <button class="close-btn" id="closeFullview">✕</button>
+        <img src="assets/images/card-bg.jpg" alt="NEXUSTEK FUSION Card Background" id="fullviewImage" />
+        <div class="image-info">✦ NEXUSTEK FUSION Card Design</div>
+    </div>
+
+    <!-- ================================================================
     CARD
     ================================================================ -->
     <div class="card-container" id="app">
 
         <!-- Glow Border -->
         <div class="glow-border"></div>
-
-        <!-- ===== CARD BACKGROUND IMAGE ===== -->
-        <img src="assets/images/card-bg.jpg" alt="" class="card-bg" id="cardBg" onerror="this.style.display='none'" />
 
         <div class="card-content">
 
@@ -1208,8 +1355,11 @@
 
             <!-- ===== PROFILE ===== -->
             <div class="profile-section">
-                <div class="profile-avatar" id="avatarContainer">
-                    <img src="assets/images/profile.png" alt="Profile" id="profileImg" onerror="this.style.display='none'" />
+                <div class="profile-avatar loading" id="avatarContainer">
+                    <img src="assets/images/profile.png" 
+                         alt="Profile" 
+                         id="profileImg" 
+                         onerror="handleImageError(this)" />
                     <span class="initials" id="avatarInitials">SB</span>
                 </div>
                 <div class="profile-name" id="displayName">Sahil Prakash Bhagat</div>
@@ -1260,7 +1410,7 @@
                 </div>
             </div>
 
-            <!-- ===== SOCIAL LINKS - All Three Icons ===== -->
+            <!-- ===== SOCIAL LINKS ===== -->
             <div class="social-row" id="socialRow">
                 <!-- LinkedIn -->
                 <a href="https://in.linkedin.com/in/sahil-bhagat-36b5301a1" class="social-btn" id="linkedinBtn" target="_blank" title="LinkedIn" aria-label="LinkedIn">
@@ -1274,7 +1424,7 @@
                     <span class="emoji-icon">📷</span>
                 </a>
 
-                <!-- WhatsApp with Auto-Message -->
+                <!-- WhatsApp -->
                 <button class="social-btn" id="whatsappBtn" title="Chat on WhatsApp" aria-label="WhatsApp">
                     <img src="assets/icons/whatsapp.png" alt="WhatsApp" onerror="this.style.display='none'" />
                     <span class="emoji-icon">💬</span>
@@ -1283,11 +1433,11 @@
 
             <!-- ===== ACTION BUTTONS ===== -->
             <button class="btn-save" id="saveContactBtn">
-                <span class="icon-btn">📇</span> <span>Save Contact (.vcf)</span>
+                <span class="icon-btn">📇</span> <span>Save to Contacts</span>
             </button>
 
-            <button class="btn-save secondary" id="openVcfBtn">
-                <span class="icon-btn">⬇️</span> <span>Download vCard File</span>
+            <button class="btn-save secondary" id="fullviewBtn">
+                <span class="icon-btn">🖼️</span> <span>View Full Card Design</span>
             </button>
 
             <!-- ===== FOOTER ===== -->
@@ -1384,7 +1534,7 @@
         })();
 
         // ================================================================
-        //  CONFIGURATION
+        //  CONFIGURATION - EDIT YOUR DETAILS HERE
         // ================================================================
         const MY_DATA = {
             fullName: "Sahil Prakash Bhagat",
@@ -1425,38 +1575,107 @@
         });
 
         // ================================================================
-        //  BUILD VCF
+        //  PROFILE IMAGE - FAST LOADING WITH AUTO FORMAT DETECTION
+        // ================================================================
+        function loadProfileImage() {
+            const img = document.getElementById('profileImg');
+            const container = document.getElementById('avatarContainer');
+            const initials = document.getElementById('avatarInitials');
+            
+            const formats = ['webp', 'png', 'jpg', 'jpeg', 'avif'];
+            let currentTry = 0;
+            
+            const srcParts = img.src.split('/');
+            const fileName = srcParts[srcParts.length - 1];
+            const baseName = fileName.replace(/\.[^/.]+$/, '');
+            const path = img.src.replace(fileName, '');
+            
+            function tryLoad() {
+                if (currentTry >= formats.length) {
+                    container.classList.remove('has-image', 'loading');
+                    initials.textContent = MY_DATA.firstName[0] + MY_DATA.lastName[0];
+                    return;
+                }
+                
+                const format = formats[currentTry];
+                const testUrl = path + baseName + '.' + format;
+                
+                const testImg = new Image();
+                testImg.onload = function() {
+                    img.src = testUrl;
+                    img.onload = function() {
+                        container.classList.add('has-image');
+                        container.classList.remove('loading');
+                        img.classList.add('loaded');
+                    };
+                    img.onerror = function() {
+                        currentTry++;
+                        tryLoad();
+                    };
+                    img.src = testUrl;
+                };
+                testImg.onerror = function() {
+                    currentTry++;
+                    tryLoad();
+                };
+                testImg.src = testUrl;
+            }
+            
+            tryLoad();
+        }
+
+        // ================================================================
+        //  IMAGE ERROR HANDLER
+        // ================================================================
+        function handleImageError(img) {
+            const container = document.getElementById('avatarContainer');
+            const initials = document.getElementById('avatarInitials');
+            
+            const formats = ['webp', 'png', 'jpg', 'jpeg', 'avif'];
+            const srcParts = img.src.split('/');
+            const fileName = srcParts[srcParts.length - 1];
+            const baseName = fileName.replace(/\.[^/.]+$/, '');
+            const path = img.src.replace(fileName, '');
+            
+            if (!img.dataset.tried) {
+                img.dataset.tried = '0';
+            }
+            
+            let tried = parseInt(img.dataset.tried);
+            if (tried >= formats.length) {
+                container.classList.remove('has-image', 'loading');
+                initials.textContent = MY_DATA.firstName[0] + MY_DATA.lastName[0];
+                return;
+            }
+            
+            const format = formats[tried];
+            img.dataset.tried = String(tried + 1);
+            img.src = path + baseName + '.' + format;
+        }
+
+        // ================================================================
+        //  BUILD VCF - INCLUDES COMPANY NAME
         // ================================================================
         function generateVcf(data) {
             const now = new Date().toISOString().replace(/[-:]/g, '').slice(0, 15) + 'Z';
             return `BEGIN:VCARD
-        VERSION:3.0
-        FN:${data.fullName}
-        N:${data.lastName};${data.firstName};;;
-        ORG:${data.company}
-        TITLE:${data.title}
-        TEL;TYPE=CELL,VOICE:${data.phoneRaw}
-        EMAIL:${data.email}
-        URL:${data.website}
-        ADR;TYPE=WORK:;;${data.address};;;;
-        REV:${now}
-        END:VCARD`;
+VERSION:3.0
+FN:${data.fullName}
+N:${data.lastName};${data.firstName};;;
+ORG:${data.company}
+TITLE:${data.title}
+TEL;TYPE=CELL,VOICE:${data.phoneRaw}
+EMAIL:${data.email}
+URL:${data.website}
+ADR;TYPE=WORK:;;${data.address};;;;
+REV:${now}
+END:VCARD`;
         }
 
         // ================================================================
         //  RENDER UI
         // ================================================================
         function renderUI(data) {
-            const profileImg = document.getElementById('profileImg');
-            const avatarContainer = document.getElementById('avatarContainer');
-
-            if (profileImg.complete && profileImg.naturalHeight !== 0) {
-                avatarContainer.classList.add('has-image');
-            } else {
-                avatarContainer.classList.remove('has-image');
-                document.getElementById('avatarInitials').textContent = data.firstName[0] + data.lastName[0];
-            }
-
             document.getElementById('displayName').textContent = data.fullName;
             document.getElementById('displayTitle').textContent = data.title;
             document.getElementById('displayCompany').textContent = data.company;
@@ -1472,33 +1691,67 @@
         }
 
         // ================================================================
+        //  SAVE TO CONTACTS - INCLUDES COMPANY NAME
+        // ================================================================
+        function saveToContacts() {
+            const vcfContent = generateVcf(MY_DATA);
+            const vcfDataUri = 'data:text/vcard;charset=utf-8,' + encodeURIComponent(vcfContent);
+            
+            const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+            
+            if (isMobile) {
+                const win = window.open(vcfDataUri, '_blank');
+                if (win) {
+                    showToast('📇 Opening contact with company name... Save to your phone!');
+                } else {
+                    downloadVcf();
+                    showToast('📇 vCard downloaded with company name. Open to save to contacts.');
+                }
+            } else {
+                downloadVcf();
+                showToast('📇 vCard downloaded with company name. Open to save to contacts.');
+            }
+        }
+
+        // ================================================================
         //  DOWNLOAD VCF
         // ================================================================
         function downloadVcf(filename = 'nexustekfusion_contact.vcf') {
-            const vcf = generateVcf(MY_DATA);
-            const blob = new Blob([vcf], { type: 'text/vcard;charset=utf-8' });
+            const vcfContent = generateVcf(MY_DATA);
+            const blob = new Blob([vcfContent], { 
+                type: 'text/vcard;charset=utf-8' 
+            });
             const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = filename;
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-            setTimeout(() => URL.revokeObjectURL(url), 5000);
-            showToast('✓ vCard downloaded. Open to save to your phone.');
-        }
-
-        function openVcfInNewTab() {
-            const vcf = generateVcf(MY_DATA);
-            const blob = new Blob([vcf], { type: 'text/vcard;charset=utf-8' });
-            const url = URL.createObjectURL(blob);
-            window.open(url, '_blank');
-            setTimeout(() => URL.revokeObjectURL(url), 10000);
-            showToast('📂 vCard opened in new tab.');
+            
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = filename;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            
+            setTimeout(() => {
+                URL.revokeObjectURL(url);
+            }, 5000);
         }
 
         // ================================================================
-        //  WHATSAPP AUTO MESSAGE - Only via WhatsApp Icon
+        //  FULL VIEW
+        // ================================================================
+        function openFullView() {
+            const overlay = document.getElementById('fullviewOverlay');
+            overlay.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeFullView() {
+            const overlay = document.getElementById('fullviewOverlay');
+            overlay.classList.remove('active');
+            document.body.style.overflow = '';
+        }
+
+        // ================================================================
+        //  WHATSAPP AUTO MESSAGE
         // ================================================================
         function openWhatsAppWithMessage() {
             const phone = MY_DATA.phoneRaw.replace('+', '');
@@ -1535,11 +1788,11 @@
             el.textContent = msg;
             el.classList.add('show');
             clearTimeout(toastTimer);
-            toastTimer = setTimeout(() => el.classList.remove('show'), 3500);
+            toastTimer = setTimeout(() => el.classList.remove('show'), 4000);
         }
 
         // ================================================================
-        //  HANDLE IMAGES
+        //  HANDLE SOCIAL ICON IMAGES
         // ================================================================
         function handleImageErrors() {
             document.querySelectorAll('.social-btn img').forEach(img => {
@@ -1554,14 +1807,25 @@
         // ================================================================
         document.addEventListener('DOMContentLoaded', function() {
             renderUI(MY_DATA);
+            loadProfileImage();
             loadViewCount();
             trackView();
 
-            document.getElementById('saveContactBtn').addEventListener('click', downloadVcf);
-            document.getElementById('openVcfBtn').addEventListener('click', openVcfInNewTab);
-
-            // WhatsApp icon with auto-message (button, not anchor)
+            document.getElementById('saveContactBtn').addEventListener('click', saveToContacts);
+            document.getElementById('fullviewBtn').addEventListener('click', openFullView);
+            document.getElementById('closeFullview').addEventListener('click', closeFullView);
+            document.getElementById('fullviewOverlay').addEventListener('click', function(e) {
+                if (e.target === this) {
+                    closeFullView();
+                }
+            });
             document.getElementById('whatsappBtn').addEventListener('click', openWhatsAppWithMessage);
+
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape') {
+                    closeFullView();
+                }
+            });
 
             setTimeout(handleImageErrors, 500);
         });
